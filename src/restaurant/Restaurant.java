@@ -124,7 +124,7 @@ abstract class Restaurant{
 	public <T extends TableAgenda> void choisir(T[] type, int nbPersonnes,String code,int iHoraire,int iDate,int iTabOuAg) {
 		type[iTabOuAg].reserver(nbPersonnes,code,iHoraire,iDate,iTabOuAg);
 	}
-	public abstract Calendar[] jourLibres(int nbPersonnes,String emplacement);
+	public abstract int[] jourLibres(int nbPersonnes,String emplacement);
 	public abstract Calendar[] horairesLibres(int[] informations);
 	public abstract void actualiser();
 	public abstract Boolean annuler(String code);

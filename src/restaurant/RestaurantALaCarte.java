@@ -17,7 +17,7 @@ public class RestaurantALaCarte extends Restaurant {
 		today.add(Calendar.DATE,1);
 		for(int i =0;i<nbJoursEnAvance;i++,today.add(Calendar.DATE, 1)) {
 			for(int j=0;j<taille;j++)
-				this.tables[i][j]=new Table(nbPersonnes[j], emplacement[j], this.agendaDeLaSemaine[today.get(Calendar.DAY_OF_WEEK)],j);
+				this.tables[i][j]=new Table(nbPersonnes[j], emplacement[j], this.agendaDeLaSemaine[today.get(Calendar.DAY_OF_WEEK)]);
 		}
 	}
 
@@ -48,7 +48,7 @@ public class RestaurantALaCarte extends Restaurant {
 
 	@Override
 	//info[0] l'index de la date
-	//info[1] l'index de la table
+	//info[2] l'index de la table
 	public Calendar[] horairesLibres(int[] informations) {
 		return this.tables[informations[0]][informations[2]].getHorairesLibres(informations[1]);
 	}
@@ -86,15 +86,11 @@ public class RestaurantALaCarte extends Restaurant {
 	public Boolean annuler(String code) {
 		int i = this.aDeLaReservation(code);
 		if(i==this.reservations.length)return false;
-		return true;
+		else {this.tables[]};
 		
 	}
 
-	@Override
-	public <T extends TableAgenda> T affichage(int nbPersonnes, int[] informationsIndex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 	
 	
 	

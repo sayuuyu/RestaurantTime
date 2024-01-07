@@ -6,10 +6,8 @@ public class Table extends TableAgenda{
 	private int[] occupe;//0:libre,1:occupe,2:doublement occupe
 	private int nbPersonnes;
 	private InformationsReservations[] informationsReservation;
-	private int iTab;
 	
-	public Table(int nbPersonnes, String emplacement,Calendar[] horaires,int iTab) {
-		this.iTab=iTab;
+	public Table(int nbPersonnes, String emplacement,Calendar[] horaires) {
 		super(horaires,emplacement);
 		int taille=this.horaires.length;
 		this.nbPersonnes=nbPersonnes;

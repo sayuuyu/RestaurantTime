@@ -4,7 +4,6 @@ import java.util.Calendar;
 
 import outils.Agenda;
 import outils.InformationsReservations;
-import outils.TableAgenda;
 
 public class RestaurantBuffet extends Restaurant{
 	private Agenda[][] agenda;
@@ -23,19 +22,19 @@ public class RestaurantBuffet extends Restaurant{
 	}
 	
 	@Override
-	public Calendar[] jourLibres(int nbPersonnes, String emplacement) {
+	public int[] jourLibres(int nbPersonnes, String emplacement) {
 		int iEmplacement = this.indiceEmplacement(emplacement);
 		int tailleJoursLibres = 0;
 		int iJ = 0;
-		Calendar[] joursLibres;
+		int[] joursLibres;
 		for(int i=0;i<agenda.length;i++)
-			if(agenda[i][iEmplacement].estLibre(nbPersonnes)) {
+			if(agenda[i][iEmplacement].estLibre(nbPersonnes,emplacement)) {
 				tailleJoursLibres++;
 			}
-		joursLibres = new Calendar[tailleJoursLibres];
-		for(int i=0;i<agenda.length && iJ!=tailleJoursLibres;i++) {
-			if(agenda[i][iEmplacement].estLibre(nbPersonnes)) {
-				joursLibres[iJ]=this.dates[i];
+		joursLibres = new int[tailleJoursLibres];
+		for(int i=this.indexDernierFoisActualiser;iJ!=tailleJoursLibres;i=(i+1)%this.dates.length) {
+			if(agenda[i][iEmplacement].estLibre(nbPersonnes,emplacement)) {
+				joursLibres[iJ]=i;
 				iJ++;
 			}
 		}
