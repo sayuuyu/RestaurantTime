@@ -86,7 +86,11 @@ public class RestaurantALaCarte extends Restaurant {
 	public Boolean annuler(String code) {
 		int i = this.aDeLaReservation(code);
 		if(i==this.reservations.length)return false;
-		else {this.tables[]};
+		InformationsReservations info = this.reservations[i];
+		return this.tables[info.getDate()][info.getiReservation()[2]].annulerReservation(info);
+	}
+	//todo
+	public addReservation(String code,int iDate,int iHoraire,int iTab) {
 		
 	}
 
