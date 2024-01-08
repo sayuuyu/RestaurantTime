@@ -1,87 +1,87 @@
 package restaurant;
 
-import java.util.Calendar;
-
 import outils.Agenda;
+import outils.Carte;
 import outils.InformationsReservations;
 
-public class RestaurantBuffet extends Restaurant{
-	private Agenda[][] agenda;
-	 
-	public RestaurantBuffet(int nbJoursEnAvance,String[] emplacements,int[] nbPersonnes,int intervalleReservation) {
-		super(intervalleReservation);
-		this.agenda=new Agenda[nbJoursEnAvance][emplacements.length];
-		Calendar today =Calendar.getInstance();
-		today.add(Calendar.DATE,1);
-		for(int iJ=0;iJ<nbJoursEnAvance;iJ++) { 
-			for(int i = 0;i<emplacements.length;i++) {
-				this.agenda[iJ][i]=new Agenda(this.agendaDeLaSemaine[today.get(Calendar.DAY_OF_WEEK)], emplacements[i], nbPersonnes[i]);
-			}
-			today.add(Calendar.DATE,1);
-		}
-	}
-	
-	@Override
-	public int[] jourLibres(int nbPersonnes, String emplacement) {
-		int iEmplacement = this.indiceEmplacement(emplacement);
-		int tailleJoursLibres = 0;
-		int iJ = 0;
-		int[] joursLibres;
-		for(int i=0;i<agenda.length;i++)
-			if(agenda[i][iEmplacement].estLibre(nbPersonnes,emplacement)) {
-				tailleJoursLibres++;
-			}
-		joursLibres = new int[tailleJoursLibres];
-		for(int i=this.indexDernierFoisActualiser;iJ!=tailleJoursLibres;i=(i+1)%this.dates.length) {
-			if(agenda[i][iEmplacement].estLibre(nbPersonnes,emplacement)) {
-				joursLibres[iJ]=i;
-				iJ++;
-			}
-		}
-		return joursLibres;
-	}
-	
-	public int indiceEmplacement(String emplacement) {
-		int iEmplacement = 0;
-		for(;iEmplacement<agenda[0].length;iEmplacement++) {
-			if(agenda[0][iEmplacement].getEmplacement().equals(emplacement))
-				return iEmplacement;
-		}
-		return iEmplacement;
-	}
-	
-	@Override
-	public Calendar[] horairesLibres(int[] informations) {
-		return this.agenda[informations[0]][informations[1]].getHorairesLibres(informations[3]);
-	}
+import java.util.Calendar;
 
-	@Override
-	public void actualiser() {
-		Calendar aujourdhui=Calendar.getInstance();
-		Calendar avant;
-		aujourdhui.add(Calendar.DATE,1);
-		while(this.dates[this.indexDernierFoisActualiser].before(aujourdhui)) {
-			avant=this.dates[(this.indexDernierFoisActualiser-1)%this.dates.length];
-			avant.add(Calendar.DATE,1);
-			this.dates[this.indexDernierFoisActualiser]=avant;
-			this.indexDernierFoisActualiser=(this.indexDernierFoisActualiser+1)%this.dates.length;
-		}
-		//todo annuler les reservations pour le jour aussi
-	}
+public class RestaurantBuffet extends Restaurant {
+    private final Agenda[] agenda;
 
-	@Override
-	public Boolean annuler(String code) {
-		int iReservationRestaurant = this.aDeLaReservation(code);
-		int iEmplacement = 0;
-		if(iReservationRestaurant!=this.reservations.length){
-			InformationsReservations info = this.reservations[iReservationRestaurant];
-			while(!this.agenda[info.getDate()][iEmplacement].annulerReservation(info))
-				iEmplacement++;
-			return true;
-		}
-		return false;
-	}
+    public RestaurantBuffet(String nomRestaurant, Carte carte, String localisation, String description, Calendar[][] horaireOuverture, int nbJoursEnAvance, int[] nbPersonnes, int intervalleReservation) {
+        super(nomRestaurant, intervalleReservation, carte, description, localisation, horaireOuverture);
+        this.agenda = new Agenda[nbJoursEnAvance];
+        Calendar today = Calendar.getInstance();
+        today.add(Calendar.DATE, 1);
+        for (int iJ = 0; iJ < nbJoursEnAvance; iJ++) {
+            this.agenda[iJ] = new Agenda(this.agendaDeLaSemaine[today.get(Calendar.DAY_OF_WEEK) - 1], nbPersonnes[iJ]);
+        }
+        today.add(Calendar.DATE, 1);
+    }
 
-	
+    @Override
+    public void reserverRestaurant(int nbPersonnes, String code, int iHoraire, int iDate, int iTabOuAg) {
+        this.agenda[iDate].reserver(nbPersonnes, code, iHoraire, iDate, iTabOuAg);
+
+    }
+
+    @Override
+    public int[] jourLibres(int nbPersonnes) {
+        int tailleJoursLibres = 0;
+        int iJ = 0;
+        int[] joursLibres;
+        for (int i = 0; i < agenda.length; i++)
+            if (agenda[i].estLibre(nbPersonnes)) {
+                tailleJoursLibres++;
+            }
+        joursLibres = new int[tailleJoursLibres];
+        for (int i = this.indexDernierFoisActualiser; iJ != tailleJoursLibres; i = (i + 1) % this.dates.length) {
+            if (agenda[i].estLibre(nbPersonnes)) {
+                joursLibres[iJ] = i;
+                iJ++;
+            }
+        }
+        return joursLibres;
+    }
+
+    @Override
+    public Calendar[] horairesLibres(int[] informations) {
+        return this.agenda[informations[0]].getHorairesLibres(informations[1]);
+    }
+
+    @Override
+    public void actualiser() {
+        Calendar demain = Calendar.getInstance();
+        Calendar avant;
+        demain.add(Calendar.DATE, 1);
+        while (this.dates[this.indexDernierFoisActualiser].before(demain)) {
+            avant = (Calendar) this.dates[(this.indexDernierFoisActualiser - 1) % this.dates.length].clone();
+            avant.add(Calendar.DATE, 1);
+            //this.agenda[this.indexDernierFoisActualiser] = new Agenda(avant, this.agenda[this.indexDernierFoisActualiser].getNbPersonnesMax);
+            this.dates[this.indexDernierFoisActualiser] = avant;
+            for (int i = 0; i < this.reservations.length; i++) {
+                if (this.reservations[i].getDate() == this.indexDernierFoisActualiser)
+                    this.delReservation(i);
+            }
+            this.indexDernierFoisActualiser = (this.indexDernierFoisActualiser + 1) % this.dates.length;
+        }
+
+    }
+
+    @Override
+    public Boolean annuler(String code) {
+        int iReservationRestaurant = this.aDeLaReservation(code);
+        if (iReservationRestaurant != this.reservations.length) {
+            InformationsReservations info = this.reservations[iReservationRestaurant];
+            return this.agenda[info.getDate()].annulerReservation(info);
+        }
+        return false;
+    }
+
+    public int[] getHorairesLibres(int[] info) {
+        return this.agenda[info[0]].getIndiceHorairesLibres(info[1]);
+    }
+
 
 }
